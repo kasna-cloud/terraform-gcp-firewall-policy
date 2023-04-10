@@ -12,8 +12,14 @@ variable "deployment_scope" {
       ["global", "regional"],
       var.deployment_scope
     )
-    error_message = "Invalid deployment scope, supported scope: 'global' or 'regional'."
+    error_message = "Invalid deployment scope, must be 'global' or 'regional'."
   }
+}
+
+variable "description" {
+  description = "Policy description."
+  type        = string
+  default     = null
 }
 
 variable "policy_region" {
@@ -48,7 +54,7 @@ variable "firewall_rules" {
 variable "network" {
   description = "VPC SelfLink to attach the firewall policy."
   type        = string
-  default     = null
+  nullable    = false
 }
 variable "policy_name" {
   description = "Firewall policy name."

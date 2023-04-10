@@ -45,7 +45,7 @@ resource "google_compute_network_firewall_policy" "default" {
   count       = var.deployment_scope == "global" ? 1 : 0
   name        = var.policy_name
   project     = var.project_id
-  description = "Global network firewall policy"
+  description = var.description
 }
 
 resource "google_compute_network_firewall_policy_rule" "default" {
@@ -89,7 +89,7 @@ resource "google_compute_network_firewall_policy_rule" "default" {
 }
 
 resource "google_compute_network_firewall_policy_association" "default" {
-  count             = var.deployment_scope == "global" && var.network != null ? 1 : 0
+  count             = var.deployment_scope == "global" ? 1 : 0
   name              = "global-association"
   attachment_target = var.network
   firewall_policy   = google_compute_network_firewall_policy.default[0].name
@@ -104,7 +104,7 @@ resource "google_compute_region_network_firewall_policy" "default" {
   count       = var.deployment_scope == "regional" ? 1 : 0
   name        = var.policy_name
   project     = var.project_id
-  description = "Regional network firewall policy"
+  description = var.description
   region      = var.policy_region
 }
 
@@ -151,7 +151,7 @@ resource "google_compute_region_network_firewall_policy_rule" "default" {
 }
 
 resource "google_compute_region_network_firewall_policy_association" "default" {
-  count             = var.deployment_scope == "regional" && var.network != null ? 1 : 0
+  count             = var.deployment_scope == "regional" ? 1 : 0
   name              = "regional-association"
   attachment_target = var.network
   firewall_policy   = google_compute_region_network_firewall_policy.default[0].name
