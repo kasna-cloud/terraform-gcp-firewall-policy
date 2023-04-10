@@ -94,17 +94,17 @@ rule-name: # rule descriptive name
   disabled: false #`false` or `true`, FW rule is disabled when `true`, default value is `false`
   description: global rule-2 # rules description
   action: allow # allow or deny
-  direction: INGRESS # INGRESS or EGRESS
+  direction: EGRESS # EGRESS or INGRESS
   priority: 1000 # rule priority value, default value is 1000
   enable_logging: true # Enable rule logging. Default is false
-  source_tags: ["12345678912", ["98765432198"]] # list of source secure tag
+  source_tags: ["12345678912", ["98765432198"] # list of source secure tag
   layer4_configs:
     - protocol: tcp # protocol, put `all` for any protocol
-      port: ['443', '80', "140-150"] # ports for a specific protocol, keep empty list `[]` for all ports
+      port: ['443', '80', "140-150"] # ports for a specific protocol, keep it as empty list `[]` for all ports
   target_service_accounts: # list of target service accounts
-  destination_ranges: # list of destination ranges, should be specified only for `EGRESS` rule
-  source_ranges: # list of source ranges, should be specified only for `INGRESS` rule
-  target_tags: # list of taget secure tag
+  destination_ranges: # list of destination IR ranges
+  source_ranges: # list of source IP ranges
+  target_tags: # list of target secure tag
   ```
 
 Firewall rules example yaml configuration
@@ -138,17 +138,13 @@ rule-2:
   description: global rule 2
   action: allow
   direction: EGRESS
-  priority: 2000
-  enable_logging: true
+  priority: 1100
+  enable_logging: false
   layer4_configs:
     - protocol: tcp
       ports:
         - 80
         - 443
-    - protocol: udp
-      ports:
-        - 555
-        - 666
   destination_ranges:
     - 192.168.0.0/24
     - 172.16.10.0/24
@@ -162,15 +158,15 @@ rule-2:
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
-| <a name="requirement_google"></a> [google](#requirement\_google) | >= 4.40.0 |
-| <a name="requirement_google-beta"></a> [google-beta](#requirement\_google-beta) | >= 4.40.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.1 |
+| <a name="requirement_google"></a> [google](#requirement\_google) | >= 4.59.0 |
+| <a name="requirement_google-beta"></a> [google-beta](#requirement\_google-beta) | >= 4.59.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_google"></a> [google](#provider\_google) | >= 4.40.0 |
+| <a name="provider_google"></a> [google](#provider\_google) | >= 4.59.0 |
 
 ## Modules
 
@@ -192,11 +188,12 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_data_folders"></a> [data\_folders](#input\_data\_folders) | List of paths to folders where firewall configs are stored in yaml format. Folder may include subfolders with configuration files. Files suffix must be `.yaml`. | `list(string)` | `null` | no |
-| <a name="input_deployment_scope"></a> [deployment\_scope](#input\_deployment\_scope) | Firewall policy deployment scope. Can be either 'global' or 'regional'. | `string` | n/a | yes |
-| <a name="input_firewall_rules"></a> [firewall\_rules](#input\_firewall\_rules) | List rule definitions, default to allow action. | <pre>map(object({<br>    action         = optional(string, "allow")<br>    description    = optional(string, null)<br>    destination_ranges = optional(list(string))<br>    disabled       = optional(bool, false)<br>    direction      = optional(string, "INGRESS")<br>    enable_logging = optional(bool, false)<br>    layer4_configs = optional(list(object({<br>      protocol = string<br>      ports    = optional(list(string))<br>    })), [{ protocol = "all" }])<br>    priority                = optional(number, 1000)<br>    source_tags         = optional(list(string))<br>    source_ranges           = optional(list(string))<br>    target_service_accounts = optional(list(string))<br>    target_tags      = optional(list(string))<br>  }))</pre> | `{}` | no |
-| <a name="input_network"></a> [network](#input\_network) | VPC SelfLink to attach the firewall policy. | `string` | `null` | no |
-| <a name="input_policy_name"></a> [policy\_name](#input\_policy\_name) | Network firewall policy name. | `string` | n/a | yes |
-| <a name="input_policy_region"></a> [policy\_region](#input\_policy\_region) | Network firewall policy region. | `string` | `null` | no |
+| <a name="input_deployment_scope"></a> [deployment\_scope](#input\_deployment\_scope) | Firewall policy deployment scope. Can be 'global' or 'regional'. | `string` | n/a | yes |
+| <a name="input_description"></a> [description](#input\_description) | Policy description. | `string` | `null` | no |
+| <a name="input_firewall_rules"></a> [firewall\_rules](#input\_firewall\_rules) | List rule definitions, default to allow action. Actions can be 'allow', 'deny', 'goto\_next'. | <pre>map(object({<br>    action             = optional(string, "allow")<br>    description        = optional(string, null)<br>    destination_ranges = optional(list(string))<br>    disabled           = optional(bool, false)<br>    direction          = optional(string, "INGRESS")<br>    enable_logging     = optional(bool, false)<br>    layer4_configs = optional(list(object({<br>      protocol = string<br>      ports    = optional(list(string))<br>    })), [{ protocol = "all" }])<br>    priority                = optional(number, 1000)<br>    source_tags             = optional(list(string))<br>    source_ranges           = optional(list(string))<br>    target_service_accounts = optional(list(string))<br>    target_tags             = optional(list(string))<br>  }))</pre> | `{}` | no |
+| <a name="input_network"></a> [network](#input\_network) | VPC SelfLink to attach the firewall policy. | `string` | n/a | yes |
+| <a name="input_policy_name"></a> [policy\_name](#input\_policy\_name) | Firewall policy name. | `string` | n/a | yes |
+| <a name="input_policy_region"></a> [policy\_region](#input\_policy\_region) | Firewall policy region. | `string` | `null` | no |
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | Project id of the project that holds the network. | `string` | n/a | yes |
 
 ## Outputs

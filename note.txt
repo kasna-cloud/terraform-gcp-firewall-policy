@@ -1,5 +1,0 @@
-dest_ip_ranges >> destination_ranges >> ["destination_ranges"]
-src_ip_ranges >> source_ranges >> ["source_ranges"]
-
-src_secure_tags >> source_tags > ["source_tags"]
-target_secure_tags >> target_tags >> ["target_tags"]
