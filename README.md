@@ -43,24 +43,23 @@ module "regional_policy" {
         }
       ]
       priority           = 1113
-      src_ip_ranges      = ["0.0.0.0/0"]
-      target_secure_tags = ["516738215535", "839187618417"]
+      source_ranges      = ["0.0.0.0/0"]
+      target_tags = ["516738215535", "839187618417"]
     }
 
-    "rule-2" = {
+    "ssh" = {
       action         = "allow"
-      description    = "rule 2"
+      description    = "allow ssh from onprem network"
       direction      = "INGRESS"
       disabled       = false
-      enable_logging = false
+      enable_logging = true
       layer4_configs = [{
-        ports    = ["443"]
+        ports    = ["22"]
         protocol = "tcp"
         }
       ]
       priority           = 2222
-      src_ip_ranges      = ["192.168.0.0/24"]
-      target_secure_tags = ["516738215535"]
+      source_ranges      = ["192.168.0.0/24"]
     }
   }
 }
@@ -98,14 +97,14 @@ rule-name: # rule descriptive name
   direction: INGRESS # INGRESS or EGRESS
   priority: 1000 # rule priority value, default value is 1000
   enable_logging: true # Enable rule logging. Default is false
-  src_secure_tags: ["12345678912", ["98765432198"]] # list of source secure tag
+  source_tags: ["12345678912", ["98765432198"]] # list of source secure tag
   layer4_configs:
     - protocol: tcp # protocol, put `all` for any protocol
       port: ['443', '80', "140-150"] # ports for a specific protocol, keep empty list `[]` for all ports
   target_service_accounts: # list of target service accounts
-  dest_ip_ranges: # list of destination ranges, should be specified only for `EGRESS` rule
-  src_ip_ranges: # list of source ranges, should be specified only for `INGRESS` rule
-  target_secure_tags: # list of taget secure tag
+  destination_ranges: # list of destination ranges, should be specified only for `EGRESS` rule
+  source_ranges: # list of source ranges, should be specified only for `INGRESS` rule
+  target_tags: # list of taget secure tag
   ```
 
 Firewall rules example yaml configuration
@@ -126,12 +125,12 @@ rule-1:
       ports:
         - 555
         - 666
-  src_ip_ranges:
+  source_ranges:
    - 192.168.1.100/32
    - 10.10.10.0/24
-  target_secure_tags:
+  target_tags:
     - 446253268572
-  src_secure_tags:
+  source_tags:
     - 516738215535
     - 839187618417
 
@@ -150,10 +149,10 @@ rule-2:
       ports:
         - 555
         - 666
-  dest_ip_ranges:
+  destination_ranges:
     - 192.168.0.0/24
     - 172.16.10.0/24
-  target_secure_tags:
+  target_tags:
     - 446253268572
   
 ```
@@ -194,7 +193,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_data_folders"></a> [data\_folders](#input\_data\_folders) | List of paths to folders where firewall configs are stored in yaml format. Folder may include subfolders with configuration files. Files suffix must be `.yaml`. | `list(string)` | `null` | no |
 | <a name="input_deployment_scope"></a> [deployment\_scope](#input\_deployment\_scope) | Firewall policy deployment scope. Can be either 'global' or 'regional'. | `string` | n/a | yes |
-| <a name="input_firewall_rules"></a> [firewall\_rules](#input\_firewall\_rules) | List rule definitions, default to allow action. | <pre>map(object({<br>    action         = optional(string, "allow")<br>    description    = optional(string, null)<br>    dest_ip_ranges = optional(list(string))<br>    disabled       = optional(bool, false)<br>    direction      = optional(string, "INGRESS")<br>    enable_logging = optional(bool, false)<br>    layer4_configs = optional(list(object({<br>      protocol = string<br>      ports    = optional(list(string))<br>    })), [{ protocol = "all" }])<br>    priority                = optional(number, 1000)<br>    src_secure_tags         = optional(list(string))<br>    src_ip_ranges           = optional(list(string))<br>    target_service_accounts = optional(list(string))<br>    target_secure_tags      = optional(list(string))<br>  }))</pre> | `{}` | no |
+| <a name="input_firewall_rules"></a> [firewall\_rules](#input\_firewall\_rules) | List rule definitions, default to allow action. | <pre>map(object({<br>    action         = optional(string, "allow")<br>    description    = optional(string, null)<br>    destination_ranges = optional(list(string))<br>    disabled       = optional(bool, false)<br>    direction      = optional(string, "INGRESS")<br>    enable_logging = optional(bool, false)<br>    layer4_configs = optional(list(object({<br>      protocol = string<br>      ports    = optional(list(string))<br>    })), [{ protocol = "all" }])<br>    priority                = optional(number, 1000)<br>    source_tags         = optional(list(string))<br>    source_ranges           = optional(list(string))<br>    target_service_accounts = optional(list(string))<br>    target_tags      = optional(list(string))<br>  }))</pre> | `{}` | no |
 | <a name="input_network"></a> [network](#input\_network) | VPC SelfLink to attach the firewall policy. | `string` | `null` | no |
 | <a name="input_policy_name"></a> [policy\_name](#input\_policy\_name) | Network firewall policy name. | `string` | n/a | yes |
 | <a name="input_policy_region"></a> [policy\_region](#input\_policy\_region) | Network firewall policy region. | `string` | `null` | no |

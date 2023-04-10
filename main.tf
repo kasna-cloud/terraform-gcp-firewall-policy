@@ -27,10 +27,10 @@ locals {
     enable_logging          = try(v.enable_logging, false)
     layer4_configs          = try(v.layer4_configs, [{ protocol = "all" }])
     target_service_accounts = try(v.target_service_accounts, null)
-    dest_ip_ranges          = try(v.dest_ip_ranges, null)
-    src_ip_ranges           = try(v.src_ip_ranges, null)
-    src_secure_tags         = try(v.src_secure_tags, null)
-    target_secure_tags      = try(v.target_secure_tags, null)
+    destination_ranges      = try(v.destination_ranges, null)
+    source_ranges           = try(v.source_ranges, null)
+    source_tags             = try(v.source_tags, null)
+    target_tags             = try(v.target_tags, null)
     }
   }, null)
 
@@ -61,7 +61,7 @@ resource "google_compute_network_firewall_policy_rule" "default" {
   enable_logging  = each.value["enable_logging"]
   match {
     dynamic "src_secure_tags" {
-      for_each = each.value["src_secure_tags"] == null ? [] : each.value["src_secure_tags"]
+      for_each = each.value["source_tags"] == null ? [] : each.value["source_tags"]
       content {
         name = "tagValues/${src_secure_tags.value}"
       }
@@ -75,13 +75,13 @@ resource "google_compute_network_firewall_policy_rule" "default" {
       }
     }
 
-    dest_ip_ranges = each.value["dest_ip_ranges"]
-    src_ip_ranges  = each.value["src_ip_ranges"]
+    dest_ip_ranges = each.value["destination_ranges"]
+    src_ip_ranges  = each.value["source_ranges"]
   }
 
   target_service_accounts = each.value["target_service_accounts"]
   dynamic "target_secure_tags" {
-    for_each = each.value["target_secure_tags"] == null ? [] : each.value["target_secure_tags"]
+    for_each = each.value["target_tags"] == null ? [] : each.value["target_tags"]
     content {
       name = "tagValues/${target_secure_tags.value}"
     }
@@ -123,7 +123,7 @@ resource "google_compute_region_network_firewall_policy_rule" "default" {
 
   match {
     dynamic "src_secure_tags" {
-      for_each = each.value["src_secure_tags"] == null ? [] : each.value["src_secure_tags"]
+      for_each = each.value["source_tags"] == null ? [] : each.value["source_tags"]
       content {
         name = "tagValues/${src_secure_tags.value}"
       }
@@ -137,13 +137,13 @@ resource "google_compute_region_network_firewall_policy_rule" "default" {
       }
     }
 
-    dest_ip_ranges = each.value["dest_ip_ranges"]
-    src_ip_ranges  = each.value["src_ip_ranges"]
+    dest_ip_ranges = each.value["destination_ranges"]
+    src_ip_ranges  = each.value["source_ranges"]
   }
 
   target_service_accounts = each.value["target_service_accounts"]
   dynamic "target_secure_tags" {
-    for_each = each.value["target_secure_tags"] == null ? [] : each.value["target_secure_tags"]
+    for_each = each.value["target_tags"] == null ? [] : each.value["target_tags"]
     content {
       name = "tagValues/${target_secure_tags.value}"
     }

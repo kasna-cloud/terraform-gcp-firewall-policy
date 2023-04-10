@@ -31,21 +31,21 @@ variable "policy_region" {
 variable "firewall_rules" {
   description = "List rule definitions, default to allow action. Actions can be 'allow', 'deny', 'goto_next'."
   type = map(object({
-    action         = optional(string, "allow")
-    description    = optional(string, null)
-    dest_ip_ranges = optional(list(string))
-    disabled       = optional(bool, false)
-    direction      = optional(string, "INGRESS")
-    enable_logging = optional(bool, false)
+    action             = optional(string, "allow")
+    description        = optional(string, null)
+    destination_ranges = optional(list(string))
+    disabled           = optional(bool, false)
+    direction          = optional(string, "INGRESS")
+    enable_logging     = optional(bool, false)
     layer4_configs = optional(list(object({
       protocol = string
       ports    = optional(list(string))
     })), [{ protocol = "all" }])
     priority                = optional(number, 1000)
-    src_secure_tags         = optional(list(string))
-    src_ip_ranges           = optional(list(string))
+    source_tags             = optional(list(string))
+    source_ranges           = optional(list(string))
     target_service_accounts = optional(list(string))
-    target_secure_tags      = optional(list(string))
+    target_tags             = optional(list(string))
   }))
   default  = {}
   nullable = false
