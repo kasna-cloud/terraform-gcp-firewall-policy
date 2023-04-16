@@ -49,7 +49,7 @@ resource "google_compute_network_firewall_policy" "default" {
 }
 
 resource "google_compute_network_firewall_policy_rule" "default" {
-  for_each        = var.policy_region == null ? local.rules : {}
+  for_each        = { for k, v in local.rules : k => v if var.policy_region == null }
   project         = var.project_id
   firewall_policy = google_compute_network_firewall_policy.default[0].name
   rule_name       = each.key
@@ -109,7 +109,7 @@ resource "google_compute_region_network_firewall_policy" "default" {
 }
 
 resource "google_compute_region_network_firewall_policy_rule" "default" {
-  for_each        = var.policy_region != null ? local.rules : {}
+  for_each        = { for k, v in local.rules : k => v if var.policy_region != null }
   project         = var.project_id
   firewall_policy = google_compute_region_network_firewall_policy.default[0].name
   region          = var.policy_region
