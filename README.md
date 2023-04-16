@@ -1,10 +1,10 @@
 # Google Cloud Network Firewall Policy
 
-Since Firewall Policies is now Google's recommended and preferred firewall construct over VPC Firewall rules. This module allows creation and management of regional and global network firewall policies and rules.
-
-Yaml abstraction for Firewall rules can simplify users onboarding and also makes rules definition simpler and clearer comparing to HCL.
+This module allows creation and management of regional and global network firewall policies and rules.
+Yaml abstraction for Firewall rulpolicies can simplify users onboarding and also makes rules definition simpler and clearer comparing to HCL.
 
 Nested folder structure for yaml configurations is optionally supported, which allows better and structured code management for multiple teams and environments.
+By default, Firewall Policies are evaludated after Firewall Rules, this behaviou can be changed using the ```network_firewall_policy_enforcement_order``` argument in ```google_compute_network``` resource
 
 ## Example
 
@@ -15,7 +15,6 @@ module "global_policy" { # global firewall policy using YAML by defining rules f
   source           = "./fabric/modules/net-vpc-network-firewall"
   project_id       = "my-project"
   policy_name      = "global-policy"
-  deployment_scope = "global"
   network          = "my-network"
   data_folders     = ["./firewall-rules"]
 }
@@ -24,8 +23,7 @@ module "regional_policy" {
   source           = "./net_vpc_network_firewall"
   project_id       = "my-project"
   policy_name      = "regional-policy"
-  deployment_scope = "regional"
-  policy_region    = "australia-southeast1"
+  policy_region    = "australia-southeast1" # specify policy rerion to enable regional policy
   firewall_rules = {
     "rule-1" = {
       action         = "allow"
@@ -90,21 +88,34 @@ module "regional_policy" {
 ### Rule definition format and structure
 
 ```yaml
-rule-name: # rule descriptive name
-  disabled: false #`false` or `true`, FW rule is disabled when `true`, default value is `false`
-  description: global rule-2 # rules description
-  action: allow # allow or deny
-  direction: EGRESS # EGRESS or INGRESS
-  priority: 1000 # rule priority value, default value is 1000
-  enable_logging: true # Enable rule logging. Default is false
-  source_tags: ["12345678912", ["98765432198"] # list of source secure tag
+rule-name:                                  # rule descriptive name
+  disabled: false                           #`false` or `true`, FW rule is disabled when `true`, default value is `false`
+  description: global rule-2                # rules description
+  action: allow                             # allow or deny
+  direction: EGRESS                         # EGRESS or INGRESS, default is INGRESS
+  priority: 1000                            # rule priority value, default value is 1000
+  enable_logging: true                      # Enable rule logging. Default is false
+  source_tags:                              # list of source secure tag
+      - 12345678912
+      - 98765432198
   layer4_configs:
-    - protocol: tcp # protocol, put `all` for any protocol
-      port: ['443', '80', "140-150"] # ports for a specific protocol, keep it as empty list `[]` for all ports
-  target_service_accounts: # list of target service accounts
-  destination_ranges: # list of destination IR ranges
-  source_ranges: # list of source IP ranges
-  target_tags: # list of target secure tag
+    - protocol: tcp                         # protocol, put `all` for any protocol
+      port:                                 # ports for a specific protocol, keep it as empty list `[]` for all ports
+      - 443
+      - 80
+      - 140-150 
+  target_service_accounts:                    # list of target service accounts
+      - sa-1@projectA.iam.gserviceaccount.com
+      - sa-2@projectB.iam.gserviceaccount.com
+  destination_ranges:                         # list of destination IR ranges
+      - 192.168.0.0/24
+      - 172.16.10.0/24
+  source_ranges:                              # list of source IP ranges
+      - 10.10.0.0/16
+      - 192.168.50.0/24
+  target_tags:                                # list of target secure tag
+      - 47395646631
+      - 90174512748
   ```
 
 Firewall rules example yaml configuration
@@ -128,11 +139,6 @@ rule-1:
   source_ranges:
    - 192.168.1.100/32
    - 10.10.10.0/24
-  target_tags:
-    - 446253268572
-  source_tags:
-    - 516738215535
-    - 839187618417
 
 rule-2:
   description: global rule 2
@@ -142,15 +148,10 @@ rule-2:
   enable_logging: false
   layer4_configs:
     - protocol: tcp
-      ports:
-        - 80
-        - 443
+      ports: []
   destination_ranges:
     - 192.168.0.0/24
     - 172.16.10.0/24
-  target_tags:
-    - 446253268572
-  
 ```
 
 <!-- BEGIN_TF_DOCS -->
@@ -188,12 +189,11 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_data_folders"></a> [data\_folders](#input\_data\_folders) | List of paths to folders where firewall configs are stored in yaml format. Folder may include subfolders with configuration files. Files suffix must be `.yaml`. | `list(string)` | `null` | no |
-| <a name="input_deployment_scope"></a> [deployment\_scope](#input\_deployment\_scope) | Firewall policy deployment scope. Can be 'global' or 'regional'. | `string` | n/a | yes |
 | <a name="input_description"></a> [description](#input\_description) | Policy description. | `string` | `null` | no |
 | <a name="input_firewall_rules"></a> [firewall\_rules](#input\_firewall\_rules) | List rule definitions, default to allow action. Actions can be 'allow', 'deny', 'goto\_next'. | <pre>map(object({<br>    action             = optional(string, "allow")<br>    description        = optional(string, null)<br>    destination_ranges = optional(list(string))<br>    disabled           = optional(bool, false)<br>    direction          = optional(string, "INGRESS")<br>    enable_logging     = optional(bool, false)<br>    layer4_configs = optional(list(object({<br>      protocol = string<br>      ports    = optional(list(string))<br>    })), [{ protocol = "all" }])<br>    priority                = optional(number, 1000)<br>    source_tags             = optional(list(string))<br>    source_ranges           = optional(list(string))<br>    target_service_accounts = optional(list(string))<br>    target_tags             = optional(list(string))<br>  }))</pre> | `{}` | no |
 | <a name="input_network"></a> [network](#input\_network) | VPC SelfLink to attach the firewall policy. | `string` | n/a | yes |
 | <a name="input_policy_name"></a> [policy\_name](#input\_policy\_name) | Firewall policy name. | `string` | n/a | yes |
-| <a name="input_policy_region"></a> [policy\_region](#input\_policy\_region) | Firewall policy region. | `string` | `null` | no |
+| <a name="input_policy_region"></a> [policy\_region](#input\_policy\_region) | Firewall policy region. Leave null to enable global policy | `string` | `null` | no |
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | Project id of the project that holds the network. | `string` | n/a | yes |
 
 ## Outputs
