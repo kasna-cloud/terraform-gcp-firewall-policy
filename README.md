@@ -1,10 +1,10 @@
 # Google Cloud Network Firewall Policy
 
 This module allows creation and management of regional and global network firewall policies and rules.
-Yaml abstraction for Firewall rulpolicies can simplify users onboarding and also makes rules definition simpler and clearer comparing to HCL.
+Yaml abstraction for Firewall policies can simplify users onboarding and also makes rules definition simpler and clearer comparing to HCL.
 
 Nested folder structure for yaml configurations is optionally supported, which allows better and structured code management for multiple teams and environments.
-By default, Firewall Policies are evaludated after Firewall Rules, this behaviou can be changed using the ```network_firewall_policy_enforcement_order``` argument in ```google_compute_network``` resource
+By default, Firewall Policies are evaludated after Firewall Rules, this behavior can be changed using the ```network_firewall_policy_enforcement_order``` argument in ```google_compute_network``` resource
 
 ## Example
 
@@ -12,7 +12,7 @@ By default, Firewall Policies are evaludated after Firewall Rules, this behaviou
 
 ```hcl
 module "global_policy" { # global firewall policy using YAML by defining rules file location
-  source           = "./fabric/modules/net-vpc-network-firewall"
+  source           = "kasna-cloud/firewall-policy/gcp"
   project_id       = "my-project"
   policy_name      = "global-policy"
   network          = "my-network"
@@ -20,10 +20,10 @@ module "global_policy" { # global firewall policy using YAML by defining rules f
 }
 
 module "regional_policy" {
-  source           = "./net_vpc_network_firewall"
+  source           = "kasna-cloud/firewall-policy/gcp"
   project_id       = "my-project"
   policy_name      = "regional-policy"
-  policy_region    = "australia-southeast1" # specify policy rerion to enable regional policy
+  policy_region    = "australia-southeast1" # specify policy region to enable regional policy
   firewall_rules = {
     "rule-1" = {
       action         = "allow"
@@ -88,19 +88,19 @@ module "regional_policy" {
 ### Rule definition format and structure
 
 ```yaml
-rule-name:                                  # rule descriptive name
-  disabled: false                           #`false` or `true`, FW rule is disabled when `true`, default value is `false`
-  description: global rule-2                # rules description
-  action: allow                             # allow or deny
-  direction: EGRESS                         # EGRESS or INGRESS, default is INGRESS
-  priority: 1000                            # rule priority value, default value is 1000
-  enable_logging: true                      # Enable rule logging. Default is false
-  source_tags:                              # list of source secure tag
+rule-name:                                   # rule descriptive name
+  disabled: false                            #`false` or `true`, FW rule is disabled when `true`, default value is `false`
+  description: global rule-2                 # rules description
+  action: allow                              # allow or deny
+  direction: EGRESS                          # EGRESS or INGRESS, default is INGRESS
+  priority: 1000                             # rule priority value, default value is 1000
+  enable_logging: true                       # Enable rule logging. Default is false
+  source_tags:                               # list of source secure tag
       - 12345678912
       - 98765432198
   layer4_configs:
-    - protocol: tcp                         # protocol, put `all` for any protocol
-      port:                                 # ports for a specific protocol, keep it as empty list `[]` for all ports
+    - protocol: tcp                          # protocol, put `all` for any protocol
+      port:                                  # ports for a specific protocol, keep it as empty list `[]` for all ports
       - 443
       - 80
       - 140-150 
