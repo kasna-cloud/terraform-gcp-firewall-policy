@@ -4,18 +4,6 @@ variable "data_folders" {
   default     = null
 }
 
-variable "deployment_scope" {
-  description = "Firewall policy deployment scope. Can be 'global' or 'regional'. "
-  type        = string
-  validation {
-    condition = contains(
-      ["global", "regional"],
-      var.deployment_scope
-    )
-    error_message = "Invalid deployment scope, must be 'global' or 'regional'."
-  }
-}
-
 variable "description" {
   description = "Policy description."
   type        = string
@@ -23,7 +11,7 @@ variable "description" {
 }
 
 variable "policy_region" {
-  description = "Firewall policy region."
+  description = "Firewall policy region. Leave null to enable global policy"
   type        = string
   default     = null
 }
@@ -59,9 +47,11 @@ variable "network" {
 variable "policy_name" {
   description = "Firewall policy name."
   type        = string
+  nullable    = false
 }
 
 variable "project_id" {
   description = "Project id of the project that holds the network."
   type        = string
+  nullable    = false
 }
